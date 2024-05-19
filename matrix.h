@@ -6,9 +6,9 @@
 class Matrix
 {
 protected:
-    int m_, n_, det_;
+    int m_, n_;
     bool detFound_;
-    double **X_;
+    double det_, **X_;
     // bool REF_c, RREF_c, inv_c ???
     // Matrix REF_X, RREF_X, inv_X ???
 public:
@@ -26,7 +26,7 @@ public:
     friend Matrix operator*(int s, const Matrix &A);                    // in matrixFunctions.cpp
     friend std::ostream &operator<<(std::ostream &os, const Matrix &A); // in matrixFunctions.cpp
 
-    // getters/display function
+    // getters
     int getM() const;
     int getN() const;
 
@@ -44,7 +44,7 @@ public:
     // linear algebra-related
     void REF();
     void RREF(); // should these permanently change the target matrix?
-    // double determinant();
+    double determinant();
     Matrix inverse();
     // Matrix solve(Matrix b);
 };

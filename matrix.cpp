@@ -35,7 +35,7 @@ Matrix::Matrix(int m, int n, double **arr) : m_(m), n_(n), det_(0), detFound_(fa
         }
     }
 
-    cleanup(m, arr);
+    cleanup(m_, arr);
 }
 
 Matrix::Matrix(const Matrix &mat) : m_(mat.getM()), n_(mat.getN()), det_(0), detFound_(false)
@@ -146,7 +146,7 @@ bool Matrix::operator==(const Matrix &B)
     return true;
 }
 
-// getters/display functions
+// getters
 int Matrix::getM() const
 {
     return m_;
@@ -214,10 +214,9 @@ Matrix Matrix::transpose()
 void Matrix::REF()
 {
     int r = 0;
+    double det = 1;
     for (int j = 0; j < n_; j++)
     {
-        cout << *this << "\n";
-
         if (X_[r][j] == 0)
         {
             int new_r = r;
@@ -230,24 +229,32 @@ void Matrix::REF()
             else
             {
                 swap(r, new_r);
-                cout << *this << "\n";
             }
         }
 
         if (X_[r][j] == 0)
             continue;
 
+        det *= X_[r][j];
+        rowMultiply(1.0 / X_[r][j], r);
         for (int i = r + 1; i < m_; i++)
         {
-            rowAdd(-1 * X_[i][j] / X_[r][j], i, r);
+            rowAdd(-1 * X_[i][j], i, r);
         }
         r++;
     }
+
+    detFound_ = true;
+    if (r < m_)
+        det_ = 0;
+    else
+        det_ = det;
 }
 
 void Matrix::RREF()
 {
     int r = 0;
+    double det = 1;
     for (int j = 0; j < n_; j++)
     {
         cout << *this << "\n";
@@ -268,6 +275,7 @@ void Matrix::RREF()
             }
         }
 
+        det *= X_[r][j];
         rowMultiply(1.0 / X_[r][j], r);
         for (int i = 0; i < m_; i++)
         {
@@ -278,6 +286,22 @@ void Matrix::RREF()
         }
         r++;
     }
+
+    detFound_ = true;
+    if (r < m_)
+        det_ = 0;
+    else
+        det_ = det;
+}
+
+double Matrix::determinant()
+{
+    if (n_ != m_)
+        throw NonInvertibleException();
+
+    if (!detFound_)
+        REF();
+    return det_;
 }
 
 Matrix Matrix::inverse()
@@ -289,6 +313,7 @@ Matrix Matrix::inverse()
     Matrix inv = identity(n_);
 
     int r = 0;
+    double det = 1;
     for (int j = 0; j < n_; j++)
     {
         if (tmp[r][j] == 0)
@@ -307,6 +332,7 @@ Matrix Matrix::inverse()
             }
         }
 
+        det *= tmp[r][j];
         inv.rowMultiply(1.0 / tmp[r][j], r);
         tmp.rowMultiply(1.0 / tmp[r][j], r);
         for (int i = 0; i < m_; i++)
@@ -325,11 +351,15 @@ Matrix Matrix::inverse()
         r++;
     }
 
+    detFound_ = true;
     if (r < m_)
     {
         det_ = 0;
-        detFound_ = true;
         throw NonInvertibleException();
+    }
+    else
+    {
+        det_ = det;
     }
 
     return inv;
