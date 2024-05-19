@@ -7,7 +7,7 @@ enable_testing()
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_executable(cube cube.cpp matrix.cpp matrixFunctions.cpp)
+add_executable(cube src/cube.cpp src/matrix.cpp src/matrixFunctions.cpp)
 
 target_link_libraries(cube ${OpenCV_LIBS})
 
